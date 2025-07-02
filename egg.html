@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>砸金蛋 - 幸运抽奖</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fff9db; padding: 20px; text-align: center; }
+    h2 { margin-bottom: 20px; }
+    .eggs { display: flex; justify-content: center; gap: 20px; margin: 30px 0; }
+    .egg { width: 80px; height: 100px; background: gold; border-radius: 50% 50% 45% 45%; box-shadow: 0 0 10px #aaa; cursor: pointer; }
+    #result { font-size: 20px; color: green; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>🎉 砸金蛋抽奖</h2>
+  <p id="status">加载中...</p>
+  <div class="eggs" id="eggs"></div>
+  <div id="result"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCac7mtRa2u_5dcN80jSmkoLsVzumvkqek",
+      authDomain: "golden-egg-a9cdf.firebaseapp.com",
+      databaseURL: "https://golden-egg-a9cdf-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "golden-egg-a9cdf",
+      storageBucket: "golden-egg-a9cdf.firebasestorage.app",
+      messagingSenderId: "581243383532",
+      appId: "1:581243383532:web:225be344c777abaf4e3fc9"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const prizes = [
+      { name: "谢谢参与", weight: 50 },
+      { name: "10元代金券", weight: 30 },
+      { name: "免费服务一次", weight: 15 },
+      { name: "100元现金红包", weight: 5 }
+    ];
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return window.location.href = "login.html";
+      const uid = user.uid;
+      const db = firebase.database();
+      const today = new Date().toISOString().split('T')[0];
+      const ref = db.ref("drawRecords/" + uid + "/" + today);
+
+      ref.once("value", snapshot => {
+        if (snapshot.exists()) {
+          document.getElementById("status").innerText = "您今天已经抽过奖了！";
+        } else {
+          document.getElementById("status").innerText = "点击任意金蛋进行抽奖：";
+          const eggArea = document.getElementById("eggs");
+          for (let i = 0; i < 3; i++) {
+            const egg = document.createElement("div");
+            egg.className = "egg";
+            egg.onclick = () => doDraw(ref, user.email);
+            eggArea.appendChild(egg);
+          }
+        }
+      });
+    });
+
+    function doDraw(ref, userEmail) {
+      const total = prizes.reduce((sum, p) => sum + p.weight, 0);
+      let rand = Math.random() * total;
+      let result = "谢谢参与";
+      for (let p of prizes) {
+        if (rand < p.weight) {
+          result = p.name;
+          break;
+        }
+        rand -= p.weight;
+      }
+      const now = new Date().toLocaleString();
+      ref.set({ prize: result, time: now, email: userEmail });
+      document.getElementById("result").innerText = `🎊 您抽中了：${result}`;
+      document.getElementById("status").innerText = "您今天已抽奖";
+      document.getElementById("eggs").innerHTML = "";
+    }
+  </script>
+</body>
+</html>

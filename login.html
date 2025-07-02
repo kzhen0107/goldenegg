@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>登录 / 注册 - 幸运抽奖</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 40px; text-align: center; }
+    .box { background: white; max-width: 400px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+    input, button { padding: 10px; width: 90%; margin: 10px 0; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>顾客登录 / 注册</h2>
+    <input type="email" id="email" placeholder="请输入手机号（例如 phone@example.com）"><br>
+    <input type="password" id="password" placeholder="请输入密码"><br>
+    <button onclick="login()">登录</button>
+    <button onclick="register()">注册</button>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCac7mtRa2u_5dcN80jSmkoLsVzumvkqek",
+      authDomain: "golden-egg-a9cdf.firebaseapp.com",
+      databaseURL: "https://golden-egg-a9cdf-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "golden-egg-a9cdf",
+      storageBucket: "golden-egg-a9cdf.firebasestorage.app",
+      messagingSenderId: "581243383532",
+      appId: "1:581243383532:web:225be344c777abaf4e3fc9"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(() => window.location.href = "egg.html")
+        .catch(e => document.getElementById("message").innerText = "❌ 登录失败：" + e.message);
+    }
+
+    function register() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(() => window.location.href = "egg.html")
+        .catch(e => document.getElementById("message").innerText = "❌ 注册失败：" + e.message);
+    }
+  </script>
+</body>
+</html>
